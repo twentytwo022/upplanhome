@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>upPlan — Structured Trader Discipline</title>
+
+    <!-- Font Awesome -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Tailwind config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4DA742',
+                        // primary: '#00A2A9',
+
+                        dark: '#000',
+                        white: '#fff',
+                    },
+                    animation: {
+                        marquee: 'marquee 50s linear infinite',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+
+
+    <style>
+        .pricing-section {
+            position: relative;
+            padding: 100px 5%;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* Wave */
+        .wave-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            z-index: 0;
+        }
+
+        .wave-container svg {
+            width: 100%;
+            height: 250px;
+        }
+
+        /* Wrapper */
+        .pricing-wrapper {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: auto;
+            text-align: center;
+        }
+
+        /* Toggle */
+        .pricing-toggle {
+            display: inline-flex;
+            background: #f1f1f1;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 60px;
+        }
+
+        .toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #2ecc71;
+            color: #fff;
+        }
+
+        /* Cards */
+        .pricing-cards {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .pricing-card {
+            width: 250px;
+            /* smaller for zoomed-out look */
+            border: 1px solid #2ecc71;
+            padding: 30px 22px;
+            border-radius: 18px;
+            background: #f8f8f8;
+            transition: 0.4s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .price {
+            font-size: 34px;
+            font-weight: 600;
+            margin: 12px 0;
+        }
+
+        .per {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0;
+        }
+
+        .pricing-card li {
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .pricing-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 30px;
+            border: none;
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .pricing-btn:hover {
+            background: #2ecc71;
+            color: #000;
+        }
+
+        /* Banner */
+        .pricing-banner {
+            background: #000;
+            color: #fff;
+            padding: 50px;
+            border-radius: 25px;
+            max-width: 800px;
+            margin: auto;
+            transition: 0.6s ease;
+        }
+
+        .pricing-banner h2 {
+            margin-bottom: 15px;
+        }
+
+        .banner-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            background: #2ecc71;
+            color: #000;
+            cursor: pointer;
+        }
+
+        /* Mobile horizontal scroll */
+        @media(max-width:768px) {
+
+            .pricing-cards {
+                display: flex;
+                justify-content: flex-start;
+                /* KEY FIX */
+                gap: 20px;
+
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+
+                padding: 0 20px 20px 20px;
+                /* breathing room */
+            }
+
+            .pricing-card {
+                min-width: 260px;
+                flex: 0 0 auto;
+                /* prevents shrinking */
+                scroll-snap-align: start;
+                /* first card locks properly */
+            }
+
+
+        }
+
+        .pricing-cards::-webkit-scrollbar {
+            display: none;
+        }
+
+        .pricing-cards {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .services-section {
+            position: relative;
+            background: #ffffff;
+            padding: 120px 5%;
+            overflow: hidden;
+        }
+
+        /* Make background NOT affect layout */
+        .services-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Control wave size so they don't stretch layout */
+        .wave {
+            position: absolute;
+            width: 160%;
+            left: -30%;
+            height: 400px;
+        }
+
+        /* First wave */
+        .wave1 {
+            top: 20%;
+            transform: rotate(-8deg);
+        }
+
+        /* Second wave */
+        .wave2 {
+            top: 40%;
+            transform: rotate(-8deg);
+        }
+
+        /* Make sure content stays above */
+        .services-content {
+            position: relative;
+            z-index: 2;
+        }
+
+
+        /* Wave Container */
+        .wave-container {
+            position: absolute;
+            top: -150px;
+            left: -200px;
+            width: 150%;
+            transform: rotate(-8deg);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+
+
+        /* Parallax Motion */
+        @keyframes waveMove {
+            from {
+                transform: translateX(-50px);
+            }
+
+            to {
+                transform: translateX(50px);
+            }
+        }
+
+        /* Content Above Waves */
+        .services-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .services-grid {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .service-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 300px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4DA742;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            background: #0b0f1a;
+            position: relative;
+        }
+
+        #heroParticles {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .dashboard-dark {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 20px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .trade-row {
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .trade-row.profit {
+            color: #4DA742;
+        }
+
+        .trade-row.loss {
+            color: #ff4d4d;
+        }
+
+        .cursor {
+            display: inline-block;
+            margin-left: 4px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50%,
+            100% {
+                opacity: 1;
+            }
+
+            25%,
+            75% {
+                opacity: 0;
+            }
+        }
+
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+    <style>
+        .toggleBtn {
+            background: transparent;
+            transition: 0.3s;
+        }
+
+        .toggleBtn.active {
+            background: #4DA742;
+            color: black;
+        }
+    </style>
+
+</head>
+
+<body class="bg-neutral-100 text-gray-900 font-sans">
+
+    <!-- ================= NAVBAR ================= -->
+    <nav class="fixed top-0 left-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mt-6 flex items-center justify-between rounded-full 
+            bg-black/40 backdrop-blur-xl border border-white/10 
+            px-6 py-3">
+
+                <div class="flex items-center gap-3">
+                    <img src="asset/image/logo2-remove.png" alt="upPlan logo" width="90" class="h-12" />
+                </div>
+                >
+
+                <ul class="hidden md:flex gap-8 text-sm text-gray-300">
+                    <li><a href="#" class="hover:text-green-400 transition">Home</a></li>
+                    <li><a href="#features" class="hover:text-green-400 transition">Features</a></li>
+                    <li><a href="#pricing" class="hover:text-green-400 transition">Pricing</a></li>
+                    <li><a href="#contact" class="hover:text-green-400 transition">Contact</a></li>
+                </ul>
+
+                <a href="#"
+                    class="hidden md:inline-block bg-green-500 text-black px-5 py-2 rounded-full font-medium hover:scale-105 transition">
+                    Register
+                </a>
+
+                <button id="menuToggle" class="md:hidden text-white text-2xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MODAL -->
+    <div id="mobileMenu" class="fixed inset-0 bg-black/70 backdrop-blur-md 
+flex items-center justify-center opacity-0 pointer-events-none 
+transition-all duration-500 z-40">
+
+        <div class="bg-[#0b0f1a] border border-white/10 rounded-3xl 
+    w-[85%] max-w-md p-10 text-center space-y-6 text-white">
+
+            <a href="#" class="block hover:text-green-400">Home</a>
+            <a href="#features" class="block hover:text-green-400">Features</a>
+            <a href="#pricing" class="block hover:text-green-400">Pricing</a>
+            <a href="#contact" class="block hover:text-green-400">Contact</a>
+
+            <a href="#" class="inline-block mt-4 bg-green-500 text-black px-6 py-3 rounded-full font-semibold">
+                Register
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= HERO ================= -->
+    <section class="hero overflow-hidden">
+
+        <canvas id="heroParticles"></canvas>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-6 pt-40 pb-28">
+
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+                <!-- LEFT -->
+                <div>
+                    <h1 class="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                        Structured
+                        <span id="typedText" class="text-green-500"></span>
+                        <span class="cursor">|</span>
+                        <br>
+                        Built for Performance
+                    </h1>
+
+
+                    <p class="mt-6 text-gray-400 text-lg max-w-lg">
+                        Enforcing accountability, tracking execution, and scaling profitability with structured systems.
+                    </p>
+
+                    <div class="mt-10">
+                        <a href="#pricing"
+                            class="bg-green-500 text-black px-8 py-4 rounded-full font-semibold shadow-lg hover:scale-105 transition">
+                            Explore Plans
+                        </a>
+                    </div>
+                </div>
+
+                <!-- RIGHT DASHBOARD -->
+                <div class="dashboard-dark text-white">
+
+                    <div class="flex justify-between mb-6 text-gray-400 text-sm">
+                        <span>Journal Overview</span>
+                        <span>Last 30 Days</span>
+                    </div>
+
+                    <div class="space-y-4 text-sm">
+                        <div class="trade-row profit">+ $420 — NAS100</div>
+                        <div class="trade-row loss">- $150 — EURUSD</div>
+                        <div class="trade-row profit">+ $890 — XAUUSD</div>
+                        <div class="trade-row profit">+ $210 — US30</div>
+                        <div class="trade-row loss">- $95 — GBPJPY</div>
+                    </div>
+
+                    <div class="mt-8">
+                        <svg viewBox="0 0 400 150">
+                            <path d="M0 120 Q 80 100 140 110 T 260 60 T 400 40" stroke="#4DA742" fill="transparent"
+                                stroke-width="3" />
+                        </svg>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white py-24 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            <!-- IMAGE SIDE -->
+            <div class="relative">
+
+                <!-- Main image -->
+                <img src="asset/image/people.jpg" alt="Service preview"
+                    class="w-full rounded-3xl object-cover shadow-2xl" />
+
+                <!-- Floating image (HALF OVERLAP) -->
+                <div class="absolute top-1/2 right-0 hidden md:block translate-x-1/4 -translate-y-1/2">
+                    <img src="asset/image/people3.jpg" alt="Detail"
+                        class="w-72 rounded-3xl shadow-2xl border border-white/40" />
+                </div>
+
+                <!-- Experience badge -->
+                <div class="absolute top-6 left-6 rounded-2xl bg-primary text-black px-6 py-4 shadow-lg">
+                    <p class="text-2xl font-bold">30+</p>
+                    <p class="text-sm font-medium">Active Traders</p>
+                </div>
+
+            </div>
+
+
+            <!-- CONTENT SIDE -->
+            <div>
+                <span class="inline-block mb-4 text-sm font-semibold tracking-wide text-primary uppercase">
+                    Get to know
+                </span>
+
+                <h2 class="text-4xl lg:text-5xl font-bold text-neutral-900 leading-tight">
+                    We provide structured <br />
+                    <span class="text-primary">trading discipline</span> systems
+                </h2>
+
+                <p class="mt-6 text-neutral-600 max-w-xl">
+                    UpPlan enforces accountability, risk management, and consistency —
+                    helping traders eliminate emotional decisions and scale sustainably.
+                </p>
+
+                <!-- Bullet points -->
+                <ul class="mt-8 space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 h-2 w-2 rounded-full bg-primary"></span>
+                        <span class="text-neutral-700">
+                            Enforced trading rules & risk limits
+                        </span>
+                    </li>
+
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 h-2 w-2 rounded-full bg-primary"></span>
+                        <span class="text-neutral-700">
+                            Weekly discipline scoring & performance reviews
+                        </span>
+                    </li>
+
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 h-2 w-2 rounded-full bg-primary"></span>
+                        <span class="text-neutral-700">
+                            Human + system accountability (not automated fluff)
+                        </span>
+                    </li>
+                </ul>
+
+                <!-- CTA -->
+                <div class="mt-10 flex items-center gap-6">
+                    <!-- <a href="#pricing" class="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 font-semibold text-black
+                 shadow-[0_20px_40px_rgba(77,167,66,0.35)]
+                 transition hover:scale-[1.03]">
+                            Explore plans
+                        </a> -->
+
+                    <a href="#pricing">
+                        <button class="w-full max-w-xs mx-aut block rounded-full bg-primary px-4 py-2
+                            font-medium text-black
+                            shadow-[0_20px_50px_rgba(77,167,66,0.4)]
+                            transition hover:scale-[1.02]">
+                            Explore plans
+                        </button>
+                    </a>
+
+
+                    <div class="flex items-center gap-3">
+
+                        <div class="text-sm">
+                            <p class="font-semibold text-neutral-900">UpPlan Team</p>
+                            <p class="text-neutral-500">Trader Accountability</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- service -->
+    <section class="services-section">
+        <!-- WAVES -->
+        <div class="services-bg">
+            <svg class="wave wave1" viewBox="0 0 1440 320">
+                <path fill="#22c55e" fill-opacity="0.15"
+                    d="M0,160L80,154.7C160,149,320,139,480,154.7C640,171,800,213,960,213.3C1120,213,1280,171,1360,149.3L1440,128V0H0Z">
+                </path>
+            </svg>
+
+            <svg class="wave wave2" viewBox="0 0 1440 320">
+                <path fill="#22c55e" fill-opacity="0.25"
+                    d="M0,256L60,245.3C120,235,240,213,360,208C480,203,600,213,720,224C840,235,960,245,1080,229.3C1200,213,1320,171,1380,149.3L1440,128V0H0Z">
+                </path>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-neutral-900">
+                    Our <span class="text-primary">Services</span>
+                </h2>
+                <p class="mt-4 text-neutral-600 max-w-xl mx-auto">
+                    Premium tools and accountability systems designed to help traders
+                    scale with discipline and consistency.
+                </p>
+            </div>
+
+            <!-- Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Card 1 -->
+                <div class="group relative rounded-3xl bg-white p-8
+                         shadow-[0_20px_40px_rgba(0,0,0,0.08)]
+                         transition-all duration-300
+                         hover:-translate-y-2 hover:shadow-[0_30px_70px_rgba(77,167,66,0.25)]" data-aos="flip-left">
+
+                    <div class="absolute inset-0 rounded-3xl bg-primary/5 opacity-0 group-hover:opacity-100 transition">
+                    </div>
+
+                    <div class="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl
+                              bg-primary/10 text-primary text-2xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <h3 class="relative text-xl font-semibold text-neutral-900 mb-3">
+                        Trading Plan Enforcement
+                    </h3>
+
+                    <p class="relative text-neutral-600 leading-relaxed mb-4">
+                        First, we help traders create a solid risk plan — or refine an existing one —
+                        to ensure structure, discipline, and long-term consistency.
+                    </p>
+
+                    <ul class="relative space-y-2 text-neutral-700 text-sm mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Risk rules
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Maximum trades per day
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Daily loss limit
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Strategy rules
+                        </li>
+                    </ul>
+
+                    <!-- Footer -->
+                    <div class="relative flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">
+                            UPPLAN Framework
+                        </span>
+
+
+                        <a href="/Services.html">
+                            <button class="w-full max-w-xs mx-aut block rounded-full bg-primary px-4 py-2
+                            font-medium text-black
+                            shadow-[0_20px_50px_rgba(77,167,66,0.4)]
+                            transition hover:scale-[1.02]">
+                                Learn More
+                            </button>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="group relative rounded-3xl bg-white p-8 shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 shadow-[0_30px_70px_rgba(77,167,66,0.25)]"
+                    data-aos="flip-up">
+
+                    <div
+                        class="absolute inset-0 rounded-3xl bg-primary/5 opacity-100 group-hover:opacity-100 transition">
+                    </div>
+
+                    <div class="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl
+                              bg-primary/10 text-primary text-2xl">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+
+                    <!-- Title -->
+                    <h3 class="relative text-xl font-semibold text-neutral-900 mb-3">
+                        Trade Accountability & Review
+                    </h3>
+
+                    <!-- Description -->
+                    <p class="relative text-neutral-600 leading-relaxed mb-4">
+                        We journal the traders trade daily and record discipline score and make sure the trader is
+                        following the trade and risk plan.
+                    </p>
+
+                    <!-- List -->
+                    <ul class="relative space-y-2 text-neutral-700 text-sm mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Trader submits trades via (screenshots/statements)
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Weekly summary
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            We Compare trades to your/our trading plan
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Track emotional mistakes
+                        </li>
+
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Score discipline (0–100) (discipline score must stay above 75 at all times)
+                        </li>
+
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Deliverable to trader: Weekly report, Mistake pattern insights, Next week correction
+                            focus
+                        </li>
+                    </ul>
+
+                    <!-- Footer -->
+                    <div class="relative flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">
+                            UPPLAN Framework
+                        </span>
+
+                    
+
+                        <a href="/Services.html">
+                            <button class="w-full max-w-xs mx-aut block rounded-full bg-primary px-4 py-2
+                            font-medium text-black
+                            shadow-[0_20px_50px_rgba(77,167,66,0.4)]
+                            transition hover:scale-[1.02]">
+                                Learn More
+                            </button>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="group relative rounded-3xl bg-white p-8
+                         shadow-[0_20px_40px_rgba(0,0,0,0.08)]
+                         transition-all duration-300
+                         hover:-translate-y-2 hover:shadow-[0_30px_70px_rgba(77,167,66,0.25)]" data-aos="flip-left">
+
+                    <div class="absolute inset-0 rounded-3xl bg-primary/5 opacity-0 group-hover:opacity-100 transition">
+                    </div>
+
+                    <div class="relative mb-6 flex h-14 w-14 items-center justify-center rounded-2xl
+                              bg-primary/10 text-primary text-2xl">
+                        <i class="fa-brands fa-watchman-monitoring"></i>
+                    </div>
+
+                    <h3 class="relative text-xl font-semibold text-neutral-900 mb-3">Challenge Monitoring
+                        (Prop-Specific)</h3>
+
+                    <p class="relative text-neutral-600 leading-relaxed mb-4">
+                        If the account is a prop account, we make sure the rule is in compliance with the prop firm
+                        rules to make sure it respects all the prop trading rules
+                        <br>
+                    <p class="text-dark font-bold">What we do: We monitor</p>
+                    </p>
+
+                    <ul class="relative space-y-2 text-neutral-700 text-sm mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Drawdown rules
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Daily loss rules
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Consistency rules
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Strategy rules
+                        </li>
+                    </ul>
+                    <p class="text-dark font-bold">
+                        Warn trader when they are:
+
+                    </p>
+
+                    <ul class="relative space-y-2 text-neutral-700 text-sm mb-6">
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Overtrading
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-primary"></span>
+                            Near violation
+                        </li>
+                    </ul>
+                    <!-- Footer -->
+                    <div class="relative flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">
+                            UPPLAN Framework
+                        </span>
+
+                        <!-- Button -->
+                        <!-- <button class="group/btn inline-flex items-center gap-2 rounded-full
+                             bg-primary px-5 py-2 text-sm font-semibold text-white
+                             shadow-[0_10px_30px_rgba(77,167,66,0.35)]
+                             transition-all duration-300
+                             hover:shadow-[0_15px_40px_rgba(77,167,66,0.55)]
+                             hover:translate-x-1">
+                                Learn more
+                                <i
+                                    class="fa-solid fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
+                            </button> -->
+
+                        <a href="/Services.html">
+                            <button class="w-full max-w-xs mx-aut block rounded-full bg-primary px-4 py-2
+                            font-medium text-black
+                            shadow-[0_20px_50px_rgba(77,167,66,0.4)]
+                            transition hover:scale-[1.02]">
+                                Learn More
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Breach System -->
+    <section class="relative bg-fixed bg-center bg-cover py-28 px-6"
+        style="background-image: url('/asset/image/branch-bg3.jpg');">
+        <div class="absolute inset-0 bg-black/75"></div>
+
+        <div class="relative max-w-7xl mx-auto">
+
+            <!-- Header -->
+            <div class="max-w-3xl mb-16" data-aos="fade-down" data-aos-easing="linear" data-aos-duration="1500">
+                <span class="inline-flex items-center gap-2 rounded-full
+                       bg-primary/15 px-4 py-1 text-4xl font-bold text-primary">
+                    Breach System
+                </span>
+
+                <h2 class="mt-6 text-4xl font-bold text-white leading-tight">
+                    Discipline is non-negotiable
+                </h2>
+
+                <p class="mt-4 text-neutral-300 leading-relaxed">
+                    The Breach System exists to enforce accountability and build disciplined
+                    traders. Without strict enforcement, the purpose of UpPlan is defeated.
+                </p>
+            </div>
+
+            <!-- Rules -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <!-- Rule 1 -->
+                <div class="relative rounded-3xl border border-white/10
+                      bg-neutral-900/80 backdrop-blur p-8" data-aos="zoom-in-up">
+                    <span class="absolute -top-3 left-6 rounded-full
+                         bg-primary px-4 py-1 text-xs font-semibold text-black">
+                        Rule 01
+                    </span>
+
+                    <h3 class="mt-4 text-xl font-semibold text-white">
+                        False Trade Reporting
+                    </h3>
+
+                    <p class="mt-3 text-neutral-300 leading-relaxed">
+                        Any form of lying, manipulation, or misreporting of trades
+                        results in immediate cancellation of the UpPlan subscription.
+                    </p>
+                </div>
+
+                <!-- Rule 2 -->
+                <div class="relative rounded-3xl border border-white
+                      bg-neutral-900/80 backdrop-blur p-8" data-aos="flip-left" data-aos-easing="ease-out-cubic"
+                    data-aos-duration="2000">
+                    <span class="absolute -top-3 left-6 rounded-full
+                         bg-primary px-4 py-1 text-xs font-semibold text-black">
+                        Rule 02
+                    </span>
+
+                    <h3 class="mt-4 text-xl font-semibold text-white">
+                        Repeated Rule Violations
+                    </h3>
+
+                    <p class="mt-3 text-neutral-300 leading-relaxed">
+                        Continuous disregard for established rules
+                        leads to immediate termination — no exceptions.
+                    </p>
+                </div>
+
+                <!-- Rule 3 -->
+                <div class="relative rounded-3xl border border-white/10
+                      bg-neutral-900/80 backdrop-blur p-8" data-aos="zoom-in-down">
+                    <span class="absolute -top-3 left-6 rounded-full
+                         bg-primary px-4 py-1 text-xs font-semibold text-black">
+                        Rule 03
+                    </span>
+
+                    <h3 class="mt-4 text-xl font-semibold text-white">
+                        Discipline Score Threshold
+                    </h3>
+
+                    <p class="mt-3 text-neutral-300 leading-relaxed">
+                        If a trader’s discipline score drops below
+                        <span class="text-primary font-semibold">75%</span>,
+                        the subscription is immediately revoked.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="mt-16 max-w-3xl border-l-4 border-primary pl-6">
+                <p class="text-neutral-200 text-lg leading-relaxed">
+                    This system protects serious traders.
+                    Discipline is the foundation of profitability.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ================= PREMIUM PRICING ================= -->
+    <section class="pricing-section">
+
+        <!-- Animated Wave -->
+        <div class="wave-container">
+            <svg viewBox="0 0 1440 320">
+                <path fill="#2ecc71" fill-opacity="0.08">
+                    <animate attributeName="d" dur="8s" repeatCount="indefinite"
+                        values="
+        M0,160L80,144C160,128,320,96,480,101.3C640,107,800,149,960,165.3C1120,181,1280,171,1360,165.3L1440,160L1440,320L0,320Z;
+        M0,192L80,176C160,160,320,128,480,112C640,96,800,96,960,122.7C1120,149,1280,203,1360,229.3L1440,256L1440,320L0,320Z;
+        M0,160L80,144C160,128,320,96,480,101.3C640,107,800,149,960,165.3C1120,181,1280,171,1360,165.3L1440,160L1440,320L0,320Z" />
+                </path>
+            </svg>
+        </div>
+
+        <div class="pricing-wrapper">
+
+            <!-- Toggle -->
+            <div class="pricing-toggle">
+                <button class="toggle-btn active" onclick="togglePricing(event,'monthly')">Monthly</button>
+                <button class="toggle-btn" onclick="togglePricing(event,'yearly')">Yearly</button>
+            </div>
+
+            <!-- Cards -->
+            <div class="pricing-cards">
+
+                <div class="pricing-card">
+                    <h3>UpPlan Builder</h3>
+                    <div class="price" data-monthly="20" data-yearly="16">$20</div>
+                    <span class="per">/mo</span>
+                    <ul>
+                        <li>Trading plan setup & review</li>
+                        <li>Weekly discipline tracking</li>
+                        <li>Trade journaling & logging</li>
+                        <li>Performance summaries</li>
+                    </ul>
+                    <button class="pricing-btn">Start with Builder</button>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>UpPlan Accelerator</h3>
+                    <div class="price" data-monthly="50" data-yearly="40">$50</div>
+                    <span class="per">/mo</span>
+                    <ul>
+                        <li>Everything in Builder</li>
+                        <li>Trade-by-trade review</li>
+                        <li>Prop challenge monitoring</li>
+                        <li>Priority feedback</li>
+                    </ul>
+                    <button class="pricing-btn">Upgrade to Accelerator</button>
+                </div>
+
+            </div>
+
+        </div>
+        <br><br>
+        <!-- Banner BELOW Pricing -->
+        <div class="pricing-banner">
+            <h2>Choose your level of discipline</h2>
+            <p>Structured performance systems for serious traders.</p>
+            <button class="banner-btn">Start building your discipline →</button>
+        </div>
+    </section>
+
+
+
+
+    <!-- RESULTS / OUTCOMES -->
+    <section class="bg-white py-16 sm:py-24 lg:py-28 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+
+                <!-- Card -->
+                <div class="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8
+                 border border-neutral-200
+                 shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                 transition-all duration-300
+                 hover:-translate-y-1
+                 hover:shadow-[0_25px_60px_rgba(77,167,66,0.2)]" data-aos="fade-up">
+                    <!-- Badge -->
+                    <span class="absolute top-4 left-4
+                   rounded-full bg-primary px-3 py-1
+                   text-xs font-semibold text-white">
+                        Discipline
+                    </span>
+
+                    <p class="mt-10 text-5xl font-bold text-primary">↑</p>
+
+                    <h3 class="mt-4 text-lg sm:text-xl font-semibold text-neutral-900">
+                        Discipline Score Improvement
+                    </h3>
+
+                    <p class="mt-3 text-sm text-neutral-600 leading-relaxed">
+                        Traders improve consistency by operating within
+                        clearly defined risk and execution rules.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8
+                    border border-neutral-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                    transition-all duration-300 hover:-translate-y-1
+                    hover:shadow-[0_25px_60px_rgba(77,167,66,0.2)]" data-aos="fade-up" data-aos-delay="100">
+
+                    <span class="absolute top-4 left-4 rounded-full bg-primary px-3 py-1
+                       text-xs font-semibold text-white">
+                        Control
+                    </span>
+
+                    <p class="mt-10 text-5xl font-bold text-primary">↓</p>
+
+                    <h3 class="mt-4 text-lg sm:text-xl font-semibold text-neutral-900">
+                        Rule Violations
+                    </h3>
+
+                    <p class="mt-3 text-sm text-neutral-600 leading-relaxed">
+                        Overtrading and repeated rule breaks are reduced
+                        through active monitoring and enforcement.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8
+                    border border-neutral-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                    transition-all duration-300 hover:-translate-y-1
+                    hover:shadow-[0_25px_60px_rgba(77,167,66,0.2)]" data-aos="fade-up" data-aos-delay="200">
+
+                    <span class="absolute top-4 left-4 rounded-full bg-primary px-3 py-1
+                       text-xs font-semibold text-white">
+                        Consistency
+                    </span>
+
+                    <p class="mt-10 text-5xl font-bold text-primary">↑</p>
+
+                    <h3 class="mt-4 text-lg sm:text-xl font-semibold text-neutral-900">
+                        Funded Account Retention
+                    </h3>
+
+                    <p class="mt-3 text-sm text-neutral-600 leading-relaxed">
+                        Traders maintain funded accounts longer by staying
+                        compliant with prop firm risk parameters.
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="relative overflow-hidden rounded-3xl bg-white p-6 sm:p-8
+                    border border-neutral-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)]
+                    transition-all duration-300 hover:-translate-y-1
+                    hover:shadow-[0_25px_60px_rgba(77,167,66,0.2)]" data-aos="fade-up" data-aos-delay="300">
+
+                    <span class="absolute top-4 left-4 rounded-full bg-primary px-3 py-1
+                       text-xs font-semibold text-white">
+                        Psychology
+                    </span>
+
+                    <p class="mt-10 text-5xl font-bold text-primary">↓</p>
+
+                    <h3 class="mt-4 text-lg sm:text-xl font-semibold text-neutral-900">
+                        Emotional Trading
+                    </h3>
+
+                    <p class="mt-3 text-sm text-neutral-600 leading-relaxed">
+                        Impulsive decisions decrease as execution becomes
+                        system-driven instead of emotional.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="bg-white py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+
+            <div class="max-w-3xl mb-20">
+                <p class="text-primary uppercase tracking-widest text-3xl font-bold">
+                    FAQ
+                </p>
+                <h2 class="mt-4 text-4xl md:text-5xl font-semibold text-neutral-900">
+                    Clear Rules. No Ambiguity.
+                </h2>
+                <p class="mt-6 text-neutral-600 text-lg">
+                    UpPlan operates on enforcement and accountability.
+                    These answers are direct — by design.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+
+                <div class="faq-item rounded-3xl border border-neutral-200 bg-white">
+                    <button class="faq-btn flex w-full items-center justify-between px-8 py-6 text-left">
+                        <span class="text-lg font-semibold text-neutral-900">
+                            What happens if I break a rule?
+                        </span>
+                        <i class="fa-solid fa-plus text-primary transition-transform"></i>
+                    </button>
+
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-500">
+                        <p class="px-8 pb-6 text-neutral-600 leading-relaxed">
+                            Rule violations are logged instantly.
+                            Repeated or serious breaches result in immediate
+                            subscription termination. No warnings.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item rounded-3xl border border-neutral-200 bg-white">
+                    <button class="faq-btn flex w-full items-center justify-between px-8 py-6 text-left">
+                        <span class="text-lg font-semibold text-neutral-900">
+                            Can I hide trades?
+                        </span>
+                        <i class="fa-solid fa-plus text-primary transition-transform"></i>
+                    </button>
+
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-500">
+                        <p class="px-8 pb-6 text-neutral-600 leading-relaxed">
+                            No. All trades must be submitted and verified.
+                            Any attempt to hide, alter, or misreport trades
+                            results in immediate cancellation.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item -->
+                <div class="faq-item rounded-3xl border border-neutral-200 bg-white">
+                    <button class="faq-btn flex w-full items-center justify-between px-8 py-6 text-left">
+                        <span class="text-lg font-semibold text-neutral-900">
+                            Is this system automated?
+                        </span>
+                        <i class="fa-solid fa-plus text-primary transition-transform"></i>
+                    </button>
+
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-500">
+                        <p class="px-8 pb-6 text-neutral-600 leading-relaxed">
+                            It’s a hybrid system.
+                            Automation tracks performance and rule compliance,
+                            while humans enforce discipline and accountability.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item -->
+                <div class="faq-item rounded-3xl border border-neutral-200 bg-white">
+                    <button class="faq-btn flex w-full items-center justify-between px-8 py-6 text-left">
+                        <span class="text-lg font-semibold text-neutral-900">
+                            What if my discipline score drops?
+                        </span>
+                        <i class="fa-solid fa-plus text-primary transition-transform"></i>
+                    </button>
+
+                    <div class="faq-content max-h-0 overflow-hidden transition-all duration-500">
+                        <p class="px-8 pb-6 text-neutral-600 leading-relaxed">
+                            If your discipline score falls below
+                            <span class="font-semibold text-primary">75%</span>,
+                            your subscription is terminated automatically.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TESTIMONIALS ================= -->
+    <!-- ================= TESTIMONIALS ================= -->
+    <section class="relative py-32 bg-white overflow-hidden">
+
+        <!-- GREEN WAVES -->
+        <div class="absolute inset-0 pointer-events-none">
+
+            <!-- Left flowing wave -->
+            <svg viewBox="0 0 1440 400" class="absolute left-0 bottom-0 w-full opacity-90">
+                <path fill="url(#greenWave1)"
+                    d="M0,300 C300,350 500,200 800,280 C1100,360 1440,260 1440,260 L1440,400 L0,400 Z">
+                </path>
+                <defs>
+                    <linearGradient id="greenWave1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#4DA742" />
+                        <stop offset="100%" stop-color="#7CFF8A" />
+                    </linearGradient>
+                </defs>
+            </svg>
+
+            <!-- Soft overlay wave -->
+            <svg viewBox="0 0 1440 400" class="absolute right-0 top-0 w-full opacity-30">
+                <path fill="#4DA742" d="M0,100 C400,200 900,50 1440,150 L1440,0 L0,0 Z">
+                </path>
+            </svg>
+
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-6">
+
+            <!-- Heading -->
+            <div class="text-center mb-20">
+                <h2 class="text-4xl lg:text-5xl font-bold text-gray-900">
+                    Real Results From Traders
+                </h2>
+                <p class="text-gray-600 mt-4">
+                    Structured discipline creates measurable performance.
+                </p>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+                <!-- Card 1 -->
+                <div class="bg-white rounded-2xl shadow-xl p-8 relative z-20">
+                    <p class="text-gray-700 mb-6">
+                        “Since using upPlan, my risk management improved dramatically.
+                        I stopped revenge trading and became consistent.”
+                    </p>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-gray-900">Michael R.</p>
+                            <p class="text-sm text-gray-500">Forex Trader</p>
+                        </div>
+                        <div class="text-green-500">★★★★★</div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-2xl shadow-xl p-8 relative z-20">
+                    <p class="text-gray-700 mb-6">
+                        “The journaling structure exposed psychological patterns
+                        that were costing me thousands.”
+                    </p>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-gray-900">Sarah T.</p>
+                            <p class="text-sm text-gray-500">Indices Trader</p>
+                        </div>
+                        <div class="text-green-500">★★★★★</div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-2xl shadow-xl p-8 relative z-20">
+                    <p class="text-gray-700 mb-6">
+                        “I now treat trading like a business. Weekly reviews,
+                        structured metrics, real growth.”
+                    </p>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-gray-900">Daniel K.</p>
+                            <p class="text-sm text-gray-500">Prop Firm Trader</p>
+                        </div>
+                        <div class="text-green-500">★★★★★</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+
+
+    </main>
+
+    <footer class="bg-black text-gray-400 pt-20 pb-10 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+
+            <!-- Brand -->
+            <div>
+                <img src="asset/image/logo2-remove.png" alt="upPlan logo" width="100" class="h-15 mb-4">
+                <p class="text-sm leading-relaxed">
+                    upPlan is a trader accountability and performance-tracking platform
+                    built to enforce discipline, structure, and long-term consistency.
+                </p>
+            </div>
+
+            <!-- Company -->
+            <div>
+                <h4 class="text-white font-semibold mb-4">Company</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-primary transition">About Us</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Services</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Pricing</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div>
+                <h4 class="text-white font-semibold mb-4">Resources</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-primary transition">FAQs</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Terms & Conditions</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-primary transition">Discipline Rules</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="text-white font-semibold mb-4">Contact</h4>
+                <ul class="space-y-3 text-sm">
+                    <li>
+                        <span class="text-primary">Email:</span><br>
+                        upplanoffical@gmail.com
+                    </li>
+                    <li>
+                        <span class="text-primary">Phone:</span><br>
+                        (+234) 9110 891 201
+                    </li>
+                    <li>
+                        <span class="text-primary">Location:</span><br>
+                        Abakaliki, Ebonyi State
+                    </li>
+                </ul>
+
+                <!-- Social Icons -->
+                <div class="flex gap-4 mt-6">
+                    <a href="#" class="h-10 w-10 flex items-center justify-center rounded-full
+                                bg-white/5 hover:bg-primary/20 transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="h-10 w-10 flex items-center justify-center rounded-full
+                                bg-white/5 hover:bg-primary/20 transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="h-10 w-10 flex items-center justify-center rounded-full
+                                bg-white/5 hover:bg-primary/20 transition">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-white/10 mt-16 pt-6 text-center text-sm text-gray-500">
+            © <span class="text-white">upPlan</span> <span id="year"></span>. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Rotating Info Toast -->
+    <div id="info-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999]
+       max-w-md w-[90%] sm:w-auto
+       bg-black text-white
+       border border-primary
+       rounded-2xl px-6 py-4
+       shadow-[0_20px_60px_rgba(0,0,0,0.6)]
+       opacity-0 translate-y-6
+       transition-all duration-500 ease-out
+       pointer-events-none">
+
+        <div class="flex items-start gap-3">
+            <span class="text-primary text-lg mt-1">
+                <i class="fa-solid fa-circle-info"></i>
+            </span>
+            <p id="toast-text" class="text-sm leading-relaxed text-neutral-300">
+                <!-- Message injected by JS -->
+            </p>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script>
+        /* MOBILE MENU */
+        const toggle = document.getElementById("menuToggle");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            mobileMenu.classList.toggle("opacity-0");
+            mobileMenu.classList.toggle("pointer-events-none");
+        });
+
+        mobileMenu.addEventListener("click", () => {
+            mobileMenu.classList.add("opacity-0");
+            mobileMenu.classList.add("pointer-events-none");
+        });
+
+        /* PARTICLES */
+        const canvas = document.getElementById("heroParticles");
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.position.z = 5;
+
+        const geometry = new THREE.BufferGeometry();
+        const count = 1000;
+        const positions = new Float32Array(count * 3);
+
+        for (let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 10;
+        }
+
+        geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({ size: 0.02, color: 0x4DA742 });
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.y += 0.001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener("resize", () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+    <script>
+        /* TYPEWRITER EFFECT */
+        const phrases = [
+            "Trader Discipline",
+            "Risk Control",
+            "Performance Tracking",
+            "Execution Precision"
+        ];
+
+        let phraseIndex = 0;
+        let letterIndex = 0;
+        let currentPhrase = "";
+        let isDeleting = false;
+
+        const typedText = document.getElementById("typedText");
+
+        function typeEffect() {
+            currentPhrase = phrases[phraseIndex];
+
+            if (!isDeleting) {
+                typedText.textContent = currentPhrase.substring(0, letterIndex + 1);
+                letterIndex++;
+
+                if (letterIndex === currentPhrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeEffect, 1200);
+                    return;
+                }
+            } else {
+                typedText.textContent = currentPhrase.substring(0, letterIndex - 1);
+                letterIndex--;
+
+                if (letterIndex === 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                }
+            }
+
+            setTimeout(typeEffect, isDeleting ? 40 : 70);
+        }
+
+        typeEffect();
+    </script>
+
+    <script>
+
+        /* APPLE STYLE FADE IN */
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove("opacity-0", "translate-y-10");
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll(".pricingCard").forEach(card => {
+            observer.observe(card);
+        });
+
+        /* PARALLAX WAVE */
+        window.addEventListener("scroll", () => {
+            const wave = document.getElementById("pricingWaveSVG");
+            const offset = window.scrollY * 0.15;
+            wave.style.transform = `translateY(${offset}px)`;
+        });
+
+        /* TOGGLE PRICING */
+        const monthlyBtn = document.getElementById("monthlyBtn");
+        const yearlyBtn = document.getElementById("yearlyBtn");
+
+        function updatePricing(type) {
+            document.querySelectorAll(".price").forEach(price => {
+                const target = price.dataset[type];
+                animateCounter(price, parseInt(price.textContent), parseInt(target));
+            });
+
+            document.querySelectorAll(".period").forEach(p => {
+                p.textContent = type === "monthly" ? "mo" : "yr";
+            });
+
+            monthlyBtn.classList.toggle("active", type === "monthly");
+            yearlyBtn.classList.toggle("active", type === "yearly");
+        }
+
+        monthlyBtn.onclick = () => updatePricing("monthly");
+        yearlyBtn.onclick = () => updatePricing("yearly");
+
+        /* COUNTER ANIMATION */
+        function animateCounter(el, start, end) {
+            let current = start;
+            const increment = (end - start) / 20;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                el.textContent = Math.floor(current);
+            }, 20);
+        }
+
+    </script>
+    <script>
+        function togglePricing(e, type) {
+            document.querySelectorAll(".toggle-btn")
+                .forEach(btn => btn.classList.remove("active"));
+
+            e.target.classList.add("active");
+
+            document.querySelectorAll(".price")
+                .forEach(price => {
+                    price.innerText = "$" + price.dataset[type];
+                });
+        }
+    </script>
+
+
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="asset/js/app.js"></script>
+    <script>
+        AOS.init();
+    </script>
+
+</body>
+
+</html>

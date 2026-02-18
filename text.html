@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+    <style>
+    .hero-saas {
+        position: relative;
+        padding: 140px 40px;
+        background: radial-gradient(circle at 20% 20%, #1a1a35, #0c0c18 60%);
+        color: white;
+        overflow: hidden;
+    }
+
+    .hero-wrapper {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 60px;
+    }
+
+    /* LEFT SIDE */
+
+    .hero-left {
+        flex: 1;
+    }
+
+    .hero-left h1 {
+        font-size: 56px;
+        font-weight: 600;
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+    }
+
+    .hero-left p {
+        font-size: 20px;
+        opacity: 0.7;
+        margin-bottom: 40px;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 20px;
+    }
+
+    .btn-primary {
+        background: #7c3aed;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: #6d28d9;
+    }
+
+    .btn-secondary {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 14px 28px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    /* RIGHT SIDE DASHBOARD */
+
+    .dashboard {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 25px;
+        backdrop-filter: blur(20px);
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .metric {
+        margin-bottom: 20px;
+    }
+
+    .metric h3 {
+        font-size: 14px;
+        opacity: 0.6;
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    /* Chart */
+    #lineChart {
+        stroke-dasharray: 600;
+        stroke-dashoffset: 600;
+        animation: drawLine 4s ease forwards;
+    }
+
+    @keyframes drawLine {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    /* Fade bottom */
+    .hero-saas::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 140px;
+        background: linear-gradient(to bottom, transparent, #0c0c18);
+    }
+</style>
+<body>
+
+<section class="hero-saas">
+
+    <div class="hero-wrapper">
+
+        <!-- LEFT -->
+        <div class="hero-left">
+            <h1>
+                Your Trading Journal.<br>
+                Reinvented for Performance.
+            </h1>
+
+            <p>
+                Track trades, analyze behavior, and build consistency with
+                institutional-level performance tracking.
+            </p>
+
+            <div class="hero-buttons">
+                <div class="btn-primary">Start Free Trial</div>
+                <div class="btn-secondary">See Demo</div>
+            </div>
+        </div>
+
+        <!-- RIGHT DASHBOARD -->
+        <div class="dashboard">
+
+            <div class="dashboard-header">
+                <strong>Performance Overview</strong>
+                <span>Last 30 Days</span>
+            </div>
+
+            <div class="metric">
+                <h3>Total PnL</h3>
+                <div class="metric-value" id="pnl">$4,250</div>
+            </div>
+
+            <div class="metric">
+                <h3>Win Rate</h3>
+                <div class="metric-value" id="winrate">62%</div>
+            </div>
+
+            <svg viewBox="0 0 400 150">
+                <path id="lineChart" d="M0 120 Q 80 90, 140 100 T 260 60 T 400 40" stroke="#8b5cf6" fill="transparent"
+                    stroke-width="3" />
+            </svg>
+
+        </div>
+
+    </div>
+</section>
+
+<script>
+    function animateValue(id, start, end, duration, suffix = "") {
+        let range = end - start;
+        let current = start;
+        let increment = range / (duration / 16);
+        let element = document.getElementById(id);
+
+        let timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) ||
+                (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.innerText =
+                suffix === "$" ?
+                    "$" + Math.floor(current).toLocaleString() :
+                    Math.floor(current) + suffix;
+        }, 16);
+    }
+
+    setInterval(() => {
+        let pnl = Math.floor(3500 + Math.random() * 2000);
+        let win = Math.floor(58 + Math.random() * 12);
+
+        animateValue("pnl", 2000, pnl, 800, "$");
+        animateValue("winrate", 50, win, 800, "%");
+    }, 5000);
+</script>
+
+</body>
+</html>
+
+
+
+ 
